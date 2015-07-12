@@ -1,0 +1,18 @@
+{
+    "version": "1.0.0",
+    "name": "cordova.plugin.launchnavigator",
+    "cordova_name": "LaunchNavigator",
+    "description": "Cordova Launch Navigator Plugin",
+    "license": "MIT",
+    "repo": "https://github.com/ryunhe/cordova-plugin-launchnavigator.git",
+    "keywords": [
+        "amap",
+        "baidu",
+        "navigator",
+        "launcher"
+    ],
+    "platforms": [
+        "android"
+    ],
+    "engines": []
+}

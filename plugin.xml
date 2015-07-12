@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" 
+    id="cordova-plugins-launchnavigator" version="1.0.0">
+    <name>LaunchNavigator</name>
+    <description>Cordova Launch Navigator Plugin</description>
+    <license>MIT</license>
+    <keywords>amap, baidu, navigator, launcher</keywords>
+ 
+    <!-- android -->
+    <platform name="android">
+        <js-module src="www/launchnavigator.js" name="launchnavigator">
+            <clobbers target="launchnavigator" />
+        </js-module>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="LaunchNavigator">
+                <param name="android-package" value="org.apache.cordova.launchnavigator.LaunchNavigator" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/LaunchNavigator.java" target-dir="src/org/apache/cordova/launchnavigator" />
+    </platform>         
+</plugin>
