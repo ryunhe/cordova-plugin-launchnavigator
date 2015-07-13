@@ -5,98 +5,90 @@ import org.apache.cordova.CallbackContext;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
 public class LaunchNavigator extends CordovaPlugin {
 
-    private static final String LOG_TAG = "LaunchNavigator";
+    private static final String TAG = LaunchNavigator.class.getName();
+    private static final String TYPE_BAIDU = "baidu";
+    private static final String TYPE_AMAP = "amap";
+
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         boolean result;
 
-        Log.d(LOG_TAG, action);
+        Log.d(TAG, action);
 
-        if ("navigate".equals(action)) {
-            result = this.navigate(args, callbackContext);
+        if ("doLaunch".equals(action)) {
+            result = doLaunch(args, callbackContext);
         } else {
-            Log.e(LOG_TAG, "Invalid action");
+            Log.e(TAG, "Invalid action");
             result = false;
         }
-        
-        if (result == true) {
+
+        if (result) {
             callbackContext.success();
         }
         return result;
     }
 
-    private boolean navigate(JSONArray args, CallbackContext callbackContext){
-        boolean result;
+    private boolean doLaunch(JSONArray args, CallbackContext callbackContext) {
+        boolean result = false;
         try {
-            String slat = "", slon = "", dlat = "", dlon = "";
 
             String type = args.getString(0);
 
-            JSONArray pos = args.optJSONArray(1);
-            JSONArray pos2 = args.optJSONArray(2);
+            JSONArray dest = args.optJSONArray(1);
+            JSONArray orig = args.optJSONArray(2);
 
-            if (null != pos && null != pos2) {
-                dlat = pos.getString(0);
-                dlon = pos.getString(1);
-
-                slat = pos2.getString(0);
-                slon = pos2.getString(1);
-
-                result = this.doNavigate(type, slat, slon, dlat, dlon, callbackContext);
-            } else if (null != pos) {
-                dlat = pos.getString(0);
-                dlon = pos.getString(1);
-
-                result = this.doViewMap(type, dlat, dlon, callbackContext);
-            } else {
-                result = false;
+            if (null != dest && null != orig) {
+                result = this.doNavigate(type, dest.getString(0), dest.getString(1), dest.getString(2)
+                        , orig.getString(0), orig.getString(1), orig.getString(2), callbackContext);
+            } else if (null != dest) {
+                result = this.doViewMap(type, dest.getString(0), dest.getString(1), dest.getString(2), callbackContext);
             }
 
-        }catch( JSONException e ) {
-            Log.e(LOG_TAG, "Exception occurred: ".concat(e.getMessage()));
-            result = false;
+        } catch (JSONException e) {
+            Log.e(TAG, "Exception occurred: ".concat(e.getMessage()));
         }
+
         return result;
     }
 
 
-    private boolean doViewMap(String type, String dlat, String dlon, CallbackContext callbackContext){
+    private boolean doViewMap(String type, String name, String lng, String lat, CallbackContext callbackContext) {
         boolean result;
         try {
-            if (type.equals("baidu")) {
+            if (type.equals(TYPE_BAIDU)) {
                 String url = String.format("bdapp://map/marker?location=%s,%s&title=%s&content=%s&coord_type=gcj02&src=duduche|parking"
-                        , dlat, dlon, dlat + "," + dlon, dlat + "," + dlon);
-                Log.d(LOG_TAG, url);
+                        , lat, lng, name, name);
+                Log.d(TAG, url);
                 Uri uri = Uri.parse(url);
                 Intent intent = new Intent("android.intent.action.VIEW", uri);
                 intent.setPackage("com.baidu.BaiduMap");
-                this.cordova.getActivity().startActivity(intent);
+                cordova.getActivity().startActivity(intent);
                 result = true;
-            } else if (type.equals("amap")) {
+            } else if (type.equals(TYPE_AMAP)) {
                 String url = String.format("androidamap://viewMap?sourceApplication=duduche&lat=%s&lon=%s&poiname=%s&dev=0"
-                        , dlat, dlon, dlat + "," + dlon);
-                Log.d(LOG_TAG, url);
+                        , lat, lng, name);
+                Log.d(TAG, url);
                 Uri uri = Uri.parse(url);
                 Intent intent = new Intent("android.intent.action.VIEW", uri);
                 intent.setPackage("com.autonavi.minimap");
-                this.cordova.getActivity().startActivity(intent);
+                cordova.getActivity().startActivity(intent);
 
                 result = true;
             } else {
-                String msg = "Invalid type.";
-                callbackContext.error(msg);
+                callbackContext.error("Invalid type.");
                 result = false;
             }
-        }catch( Exception e ) {
+        } catch (Exception e) {
             String msg = e.getMessage();
-            Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
+            Log.e(TAG, "Exception occurred: ".concat(msg));
             callbackContext.error(msg);
             result = false;
         }
@@ -105,36 +97,36 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
 
-    private boolean doNavigate(String type, String slat, String slon, String dlat, String dlon, CallbackContext callbackContext){
+    private boolean doNavigate(String type, String dname, String dlat, String dlng
+            , String oname, String olat, String olng, CallbackContext callbackContext) {
         boolean result;
         try {
             if (type.equals("baidu")) {
                 String url = String.format("bdapp://map/direction?origin=%s,%s&destination=%s,%s&coord_type=gcj02&mode=driving&src=duduche|parking"
-                        , slat, slon, dlat, dlon);
-                Log.d(LOG_TAG, url);
+                        , olat, olng, dlat, dlng);
+                Log.d(TAG, url);
                 Uri uri = Uri.parse(url);
                 Intent intent = new Intent("android.intent.action.VIEW", uri);
                 intent.setPackage("com.baidu.BaiduMap");
-                this.cordova.getActivity().startActivity(intent);
+                cordova.getActivity().startActivity(intent);
                 result = true;
             } else if (type.equals("amap")) {
                 String url = String.format("androidamap://route?sourceApplication=duduche&slat=%s&slon=%s&sname=%s&dlat=%s&dlon=%s&dname=%s&dev=0&m=0&t=2"
-                        , slat, slon, slat + "," + slon, dlat, dlon, dlat + "," + dlon);
-                Log.d(LOG_TAG, url);
+                        , olat, olng, oname, dlat, dlng, dname);
+                Log.d(TAG, url);
                 Uri uri = Uri.parse(url);
                 Intent intent = new Intent("android.intent.action.VIEW", uri);
                 intent.setPackage("com.autonavi.minimap");
-                this.cordova.getActivity().startActivity(intent);
+                cordova.getActivity().startActivity(intent);
 
                 result = true;
             } else {
-                String msg = "Invalid type.";
-                callbackContext.error(msg);
+                callbackContext.error("Invalid type.");
                 result = false;
             }
-        }catch( Exception e ) {
+        } catch (Exception e) {
             String msg = e.getMessage();
-            Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
+            Log.e(TAG, "Exception occurred: ".concat(msg));
             callbackContext.error(msg);
             result = false;
         }
