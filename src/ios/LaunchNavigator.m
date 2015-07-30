@@ -36,15 +36,22 @@ NSString *TYPE_AMAP = @"amap";
         return;
     }
     
-    if (dest != nil && orig != nil) {
-        [self navigate:type originName:orig[0] originLat:orig[2] originLng:orig[1] destinationName:dest[0] destinationLat:dest[2] destinationLng:dest[1] command:command];
-    } else if (dest != nil){
-        [self viewMap:type title:dest[0] lat:dest[2] lng:dest[1] command:command];
-    } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"navigator dest missing"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-    }
+    @try {
+        if (dest != nil && orig != nil) {
+            [self navigate:type originName:orig[0] originLat:orig[2] originLng:orig[1] destinationName:dest[0] destinationLat:dest[2] destinationLng:dest[1] command:command];
+        } else if (dest != nil){
+            [self viewMap:type title:dest[0] lat:dest[2] lng:dest[1] command:command];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"navigator dest missing"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
+        }
+        }
+        @catch (NSException *exception) {
+        }
+        @finally {
+        }
+    
 }
 
 - (void)viewMap:(NSString *)type
@@ -91,27 +98,6 @@ NSString *TYPE_AMAP = @"amap";
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-}
-
-- (NSString *)urlencode:(NSString *)urlencode {
-    return urlencode;
-    NSMutableString *output = [NSMutableString string];
-    const unsigned char *source = (const unsigned char *)[urlencode UTF8String];
-    int sourceLen = strlen((const char *)source);
-    for (int i = 0; i < sourceLen; ++i) {
-        const unsigned char thisChar = source[i];
-        if (thisChar == ' '){
-            [output appendString:@"+"];
-        } else if (thisChar == '.' || thisChar == '-' || thisChar == '_' || thisChar == '~' ||
-                   (thisChar >= 'a' && thisChar <= 'z') ||
-                   (thisChar >= 'A' && thisChar <= 'Z') ||
-                   (thisChar >= '0' && thisChar <= '9')) {
-            [output appendFormat:@"%c", thisChar];
-        } else {
-            [output appendFormat:@"%%%02X", thisChar];
-        }
-    }
-    return output;
 }
 
 @end
