@@ -47,10 +47,10 @@ NSString *TYPE_AMAP = @"amap";
             return;
         }
         }
-        @catch (NSException *exception) {
-        }
-        @finally {
-        }
+    @catch (NSException *exception) {
+    }
+    @finally {
+    }
     
 }
 
