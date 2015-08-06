@@ -7,12 +7,11 @@
     <license>MIT</license>
     <keywords>amap, baidu, navigator, launcher</keywords>
  
+    <js-module src="www/launchnavigator.js" name="launchnavigator">
+        <clobbers target="launchnavigator" />
+    </js-module>
     <!-- android -->
     <platform name="android">
-        <js-module src="www/launchnavigator.js" name="launchnavigator">
-            <clobbers target="launchnavigator" />
-        </js-module>
-
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="LaunchNavigator">
                 <param name="android-package" value="org.apache.cordova.launchnavigator.LaunchNavigator" />
@@ -21,4 +20,15 @@
 
         <source-file src="src/android/LaunchNavigator.java" target-dir="src/org/apache/cordova/launchnavigator" />
     </platform>         
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="LaunchNavigator">
+                <param name="ios-package" value="LaunchNavigator"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/LaunchNavigator.h"/>
+        <source-file src="src/ios/LaunchNavigator.m"/>
+    </platform>
 </plugin>
